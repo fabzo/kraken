@@ -75,7 +75,7 @@ public class MyTestingModule extends EnvironmentModule {
                     KubernetesConfiguration.create()
                             .withRunDockerComponents(true)
                             .withExposeService(false)
-                            .withRegistryPrefix("eu.gce.io/your-project-id")
+                            .withRegistryPrefix("eu.gcr.io/your-project-id")
                             .withNamespace("default")));
         } else {
             register(DockerLifecycleHandler.withConfig(
@@ -127,7 +127,7 @@ public class AbstractIntegrationTests {
 
 ## Property replacement
 The Docker and Kubernetes lifecycle handlers use the EnvironmentContext to store
-information like ports and IPs of started components. There can in turn be used
+information like ports and IPs of started components. These can in turn be used
 when configuring the environment variables on components.
 
 Inside the EnvironmentModule:
