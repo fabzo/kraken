@@ -1,9 +1,54 @@
-group 'fabzo'
-version '1.0-SNAPSHOT'
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
 
+plugins {
+    id "com.jfrog.bintray" version "1.7.3"
+    id "maven-publish"
+}
+
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'java'
 
+group 'fabzo'
+version '0.1'
+
 sourceCompatibility = 1.8
+
+publishing {
+    publications {
+        Kraken(MavenPublication) {
+            from components.java
+            groupId 'fabzo'
+            artifactId 'kraken'
+            version '0.1'
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    publications = ['Kraken']
+    println("user: ${user}")
+    println("key: ${key}")
+    pkg {
+        repo = 'Maven'
+        name = 'kraken'
+        userOrg = user
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/fabzo/kraken.git'
+        labels = ['docker', 'integration-testing', 'kubernetes']
+        publicDownloadNumbers = true
+        version {
+            name = '0.1'
+            desc = 'Docker integration testing support for Java'
+        }
+    }
+}
 
 repositories {
     mavenCentral()
