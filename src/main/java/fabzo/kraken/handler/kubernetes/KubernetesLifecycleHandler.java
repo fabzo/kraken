@@ -265,7 +265,7 @@ public class KubernetesLifecycleHandler extends AbstractLifecycleHandler {
                     .inNamespace(config.namespace())
                     .withName(name)
                     .tailingLines(10)
-                    .watchLog(new OutpuStreamLogAdapter(log, component.name()));
+                    .watchLog(new OutpuStreamLogAdapter(log, component.name(), true));
         });
     }
 

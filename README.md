@@ -124,3 +124,17 @@ public class AbstractIntegrationTests {
     }
 }
 ```
+
+## Property replacement
+The Docker and Kubernetes lifecycle handlers use the EnvironmentContext to store
+information like ports and IPs of started components. There can in turn be used
+when configuring the environment variables on components.
+
+Inside the EnvironmentModule:
+* Port references can be created with portRef(component name, port name)
+* IP references can be created with ipRef(component name)
+
+Outside the environment on the EnvironmentContext
+* Use the env(name) method to retrieve an environment variable set by one of the handlers
+* Use port(component name, port name) to retrieve a port
+* Use ip(component name) to retrieve the IP of a component

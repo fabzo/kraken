@@ -4,6 +4,7 @@ import fabzo.kraken.components.InfrastructureComponent;
 import fabzo.kraken.handler.LifecycleHandler;
 import io.vavr.collection.List;
 
+import static fabzo.kraken.EnvironmentContext.IP_REF;
 import static fabzo.kraken.EnvironmentContext.PORT_REF_FROM;
 
 /**
@@ -43,5 +44,16 @@ public abstract class EnvironmentModule {
      */
     protected String portRef(final String componentName, final String portName) {
         return String.format("${" + PORT_REF_FROM + "}", componentName, portName);
+    }
+
+    /**
+     * Builds a ip reference that can be used to reference the IP
+     * in component parameters.
+     *
+     * @param componentName Components name
+     * @return IP reference like ${:componentName:.ip}
+     */
+    protected String ipRef(final String componentName) {
+        return String.format("${" + IP_REF + "}", componentName);
     }
 }
