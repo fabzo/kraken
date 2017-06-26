@@ -8,7 +8,7 @@ Use MySQL instead of H2, Kafka instead of embedded or mocked versions or spin up
 * This is a hobby project
 * Test coverage could be better ... for now
 * I'm using it to get a feel for project lombok and vavr
-* Contribution are welcome
+* Contributions are welcome
 
 
 ## Example usage
@@ -93,7 +93,7 @@ public class MyTestingModule extends EnvironmentModule {
     }
 }
 ```
-In order to ensure that your environment is always available when running integration tests you can create a super class that takes care of starting the environment. It will create the environment, start it and retrieve the mariadb ip and port to set as system propertries.
+In order to ensure that your environment is always available when running integration tests you can create an abstract class that takes care of starting the environment. It will create the environment, start it and retrieve the mariadb ip and port to set as system propertries.
 ```java
 public class AbstractIntegrationTests {
     private static final String MYSQL_PORT = "mysqlport";
