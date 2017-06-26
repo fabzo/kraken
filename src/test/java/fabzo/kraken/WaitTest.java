@@ -21,13 +21,13 @@ public class WaitTest {
 
                 register(DockerComponent.create()
                         .withName("mariadb")
-                        .withImage("fabzo/mariadb-docker", "delivery")
+                        .withImage("fabzo/mariadb-docker", "testdb")
                         .withForcePull()
                         .withFollowLogs()
                         .withPortBinding("db", 3306)
-                        .withEnv("MYSQL_DATABASE", "delivery")
+                        .withEnv("MYSQL_DATABASE", "testdb")
                         .withEnv("MYSQL_ALLOW_EMPTY_PASSWORD", "yes")
-                        .withWait(new MySQLWait("delivery","db", Duration.ofSeconds(60))));
+                        .withWait(new MySQLWait("testdb","db", Duration.ofSeconds(60))));
 
             }
         });
