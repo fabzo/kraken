@@ -42,8 +42,7 @@ public class DockerCommands {
     }
 
     public void pullImage(final String image, final String tag) {
-        dockerClient.pullImageCmd(image)
-                .withTag(tag)
+        dockerClient.pullImageCmd(image + ":" + tag)
                 .exec(new NoLogPullImageResultCallback())
                 .awaitSuccess();
     }

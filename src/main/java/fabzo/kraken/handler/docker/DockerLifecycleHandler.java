@@ -87,7 +87,7 @@ public class DockerLifecycleHandler extends AbstractLifecycleHandler {
     private void createContainer(final DockerComponent dockerC, final EnvironmentContext ctx) {
         log.debug("Creating {}", dockerC.name());
         final CreateContainerResponse createResult = dockerCommands
-                .createContainer(dockerC.image())
+                .createContainer(dockerC.image() + ":" + dockerC.tag())
                 .withName(String.format("%s_%s", ctx.salt(), dockerC.name()))
                 .withPortBindings(buildPortBindings(dockerC, ctx, dockerC))
                 .withEnv(buildEnvironment(ctx, dockerC))
