@@ -75,7 +75,6 @@ public class MyTestingModule extends EnvironmentModule {
                     KubernetesConfiguration.create()
                             .withRunDockerComponents(true)
                             .withExposeService(false)
-                            .withRegistryPrefix("eu.gcr.io/your-project-id")
                             .withNamespace("default")));
         } else {
             register(DockerLifecycleHandler.withConfig(
