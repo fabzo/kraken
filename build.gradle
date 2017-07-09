@@ -70,6 +70,7 @@ dependencies {
     compile('com.jayway.awaitility:awaitility:1.7.0')
 
     testCompile('mysql:mysql-connector-java:6.0.6')
+    testCompile('junit:junit:4.12')
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompileOnly('org.projectlombok:lombok:1.16.16')
 }
