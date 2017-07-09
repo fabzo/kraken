@@ -95,6 +95,8 @@ public class MyTestingModule extends EnvironmentModule {
 ```
 In order to ensure that your environment is always available when running integration tests you can create an abstract class that takes care of starting the environment. It will create the environment, start it and retrieve the mariadb ip and port to set as system propertries.
 ```java
+@Ignore("Abstract Base Test Class")
+@RunWith(AbstractIntegrationTests.EnvironmentStoppingSpringJUnit4ClassRunner.class)
 public class AbstractIntegrationTests {
     private static final String MYSQL_PORT = "mysqlport";
     private static final String MYSQL_IP = "mysqlip";
@@ -102,7 +104,7 @@ public class AbstractIntegrationTests {
     private static Environment environment;
 
     @BeforeClass
-    public static void beforeClass() throws IOException, InterruptedException {
+    public static void beforeClass() {
         if (environment == null) {
             environment = Kraken.createEnvironment(new MyTestingModule());
             environment.start();
@@ -119,6 +121,49 @@ public class AbstractIntegrationTests {
             // localhost.
             final String mariaDBIP = environment.context().ip(MARIA_DB);
             System.setProperty(MYSQL_IP, mariaDBIP);
+        }
+    }
+
+    private static boolean isLocalDatabaseRunning() {
+        return System.getProperty(MYSQL_PORT) != null;
+    }
+
+    /**
+     * We are subclassing the SpringJUnit4ClassRunner in order to install our own RunListener that informs us
+     * when the test run is finished or failed. We do this since shutdown hooks are not as reliable as stopping
+     * the environment manually (arbitrary order, race conditions and such in the shutdown handler jdk code).
+     */
+    public static class EnvironmentStoppingSpringJUnit4ClassRunner extends SpringJUnit4ClassRunner {
+
+        private static final RunListener runListener = new RunListener() {
+            @Override
+            public void testRunFinished(final Result result) throws Exception {
+                environment.stop();
+            }
+
+            @Override
+            public void testFailure(final Failure failure) throws Exception {
+                environment.stop();
+            }
+        };
+
+        public EnvironmentStoppingSpringJUnit4ClassRunner(final Class<?> clazz) throws InitializationError {
+            super(clazz);
+        }
+
+        @Override
+        public void run(final RunNotifier notifier) {
+            super.run(registerListener(notifier));
+        }
+
+        @Override
+        protected void runChild(final FrameworkMethod frameworkMethod, final RunNotifier notifier) {
+            super.runChild(frameworkMethod, registerListener(notifier));
+        }
+
+        private RunNotifier registerListener(final RunNotifier notifier) {
+            notifier.addListener(runListener);
+            return notifier;
         }
     }
 }
