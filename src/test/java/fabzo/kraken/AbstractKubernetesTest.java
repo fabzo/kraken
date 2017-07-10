@@ -1,22 +1,16 @@
 package fabzo.kraken;
 
-import fabzo.kraken.handler.docker.DockerConfiguration;
-import fabzo.kraken.handler.docker.DockerLifecycleHandler;
 import fabzo.kraken.handler.kubernetes.KubernetesConfiguration;
 import fabzo.kraken.handler.kubernetes.KubernetesLifecycleHandler;
+import fabzo.kraken.handler.kubernetes.ServiceType;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 @Slf4j
 public abstract class AbstractKubernetesTest {
@@ -30,9 +24,9 @@ public abstract class AbstractKubernetesTest {
 
         val minikubeStatus = minikubeStatus();
 
-        if (minikubeStatus.length() == 0) {
+        if (minikubeStatus.length() == 0 || "stopped".equalsIgnoreCase(minikubeStatus)) {
             log.info("Minikube not running, starting...");
-            val result = miniKubeStart();
+            val result = minikubeStart();
             if (!result._1) {
                 throw new IllegalStateException("Failed to start minikube. Output: " + result._2);
             }
@@ -50,14 +44,16 @@ public abstract class AbstractKubernetesTest {
         return KubernetesLifecycleHandler.withConfig(
                 KubernetesConfiguration.create()
                     .withRunDockerComponents(true)
-                    .withMaster("https://" + minikubeIP() + ":8443"));
+                    .withMaster("https://" + minikubeIP() + ":8443")
+                    .withDefaultServiceType(ServiceType.NODE_PORT)
+                    .withMasterIPOnNodePort(true));
     }
 
     public static void afterClass() {
         // stop minicube if it has previously been stopped
     }
 
-    private static Tuple2<Boolean, String> miniKubeStart() {
+    private static Tuple2<Boolean, String> minikubeStart() {
         val output = runMinicubeCommand(List.of("start"));
         log.info("START OUTPUT: {}", output);
         return new Tuple2<Boolean, String>(output.contains(KUBECTL_CONFIGURED_MESSAGE), output);

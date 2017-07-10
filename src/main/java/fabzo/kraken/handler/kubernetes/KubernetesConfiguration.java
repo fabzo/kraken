@@ -6,7 +6,8 @@ public class KubernetesConfiguration implements HandlerConfiguration {
     private boolean runDockerComponents = false;
     private String namespace = "default";
     private String master;
-    private boolean exposeService = false;
+    private ServiceType defaultServiceType = ServiceType.DEFAULT;
+    private boolean masterIPOnNodePort = false;
     private String registryPrefix;
 
     public static KubernetesConfiguration create() {
@@ -57,17 +58,17 @@ public class KubernetesConfiguration implements HandlerConfiguration {
         return this;
     }
 
-    public boolean exposeService() {
-        return exposeService;
+    public ServiceType defaultServiceType() {
+        return defaultServiceType;
     }
 
     /**
-     * If services should be exposed (type: LoadBalancer).
+     * The default type for a newly created service.
      * <br>
-     * Default: false
+     * Default: DEFAULT (type field not present)
      */
-    public KubernetesConfiguration withExposeService(final boolean exposeService) {
-        this.exposeService = exposeService;
+    public KubernetesConfiguration withDefaultServiceType(final ServiceType defaultServiceType) {
+        this.defaultServiceType = defaultServiceType;
         return this;
     }
 
@@ -82,6 +83,21 @@ public class KubernetesConfiguration implements HandlerConfiguration {
      */
     public KubernetesConfiguration withRegistryPrefix(final String registryPrefix) {
         this.registryPrefix = registryPrefix;
+        return this;
+    }
+
+    public boolean masterIPOnNodePort() {
+        return masterIPOnNodePort;
+    }
+
+    /**
+     * This will instruct the kubernetes lifecycle handler to use the master
+     * instead of the cluster IP for the component. Mainly for the use with minikube.
+     * <br>
+     * Default: false
+     */
+    public KubernetesConfiguration withMasterIPOnNodePort(final boolean masterIPOnNodePort) {
+        this.masterIPOnNodePort = masterIPOnNodePort;
         return this;
     }
 }
