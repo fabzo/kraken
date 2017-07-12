@@ -1,5 +1,9 @@
-package fabzo.kraken;
+package fabzo.kraken.docker;
 
+import fabzo.kraken.AbstractDockerTest;
+import fabzo.kraken.Environment;
+import fabzo.kraken.EnvironmentModule;
+import fabzo.kraken.Kraken;
 import fabzo.kraken.components.DockerComponent;
 import fabzo.kraken.handler.docker.DockerConfiguration;
 import fabzo.kraken.handler.docker.DockerLifecycleHandler;
@@ -8,7 +12,7 @@ import org.junit.Test;
 
 import java.time.Duration;
 
-public class WaitTest extends AbstractDockerTest {
+public class DockerWaitTest extends AbstractDockerTest {
 
     @Test
     public void testDatabaseWait() {

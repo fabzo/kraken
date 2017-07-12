@@ -24,7 +24,9 @@ public abstract class AbstractKubernetesTest {
 
         val minikubeStatus = minikubeStatus();
 
-        if (minikubeStatus.length() == 0 || "stopped".equalsIgnoreCase(minikubeStatus)) {
+        if (minikubeStatus.length() == 0
+                || "stopped".equalsIgnoreCase(minikubeStatus)
+                || "saved".equalsIgnoreCase(minikubeStatus)) {
             log.info("Minikube not running, starting...");
             val result = minikubeStart();
             if (!result._1) {
@@ -55,7 +57,6 @@ public abstract class AbstractKubernetesTest {
 
     private static Tuple2<Boolean, String> minikubeStart() {
         val output = runMinicubeCommand(List.of("start"));
-        log.info("START OUTPUT: {}", output);
         return new Tuple2<Boolean, String>(output.contains(KUBECTL_CONFIGURED_MESSAGE), output);
     }
 
