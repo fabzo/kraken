@@ -182,3 +182,10 @@ Outside the environment on the EnvironmentContext
 * Use the env(name) method to retrieve an environment variable set by one of the handlers
 * Use port(component name, port name) to retrieve a port
 * Use ip(component name) to retrieve the IP of a component
+
+
+## Test Dependencies
+
+The integration tests start and stop docker containers and as such require docker to be installed. The kubernetes part requires a local installation of minikube which will be used to start pods and services.
+
+tl;dr: *Install [docker](https://www.docker.com/community-edition) and [minikube](https://github.com/kubernetes/minikube) (which also requires [VirtualBox](https://www.virtualbox.org/wiki/Downloads))*

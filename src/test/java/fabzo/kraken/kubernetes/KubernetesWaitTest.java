@@ -1,23 +1,25 @@
-package fabzo.kraken;
+package fabzo.kraken.kubernetes;
 
+import fabzo.kraken.AbstractKubernetesTest;
+import fabzo.kraken.Environment;
+import fabzo.kraken.EnvironmentModule;
+import fabzo.kraken.Kraken;
 import fabzo.kraken.components.DockerComponent;
-import fabzo.kraken.handler.docker.DockerConfiguration;
-import fabzo.kraken.handler.docker.DockerLifecycleHandler;
 import fabzo.kraken.wait.MySQLWait;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.time.Duration;
 
-public class WaitTest {
+@Slf4j
+public class KubernetesWaitTest extends AbstractKubernetesTest {
 
     @Test
     public void testDatabaseWait() {
         final Environment environment = Kraken.createEnvironment(new EnvironmentModule() {
             @Override
             public void configure() {
-                register(DockerLifecycleHandler.withConfig(
-                        DockerConfiguration.create()
-                                .withDockerSocket(DockerConfiguration.DOCKER_HOST_UNIX)));
+                register(kubernetesLifecycleHandler());
 
                 register(DockerComponent.create()
                         .withName("mariadb")

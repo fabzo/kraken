@@ -11,12 +11,13 @@ import java.sql.DriverManager;
 import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.jayway.awaitility.Awaitility.await;
 
 @Slf4j
 public class DatabaseWait implements Wait {
-    private static final String DEFAULT_JDBC_URL = "jdbc:%s://%s:%s/%s?user=%s&password=%s&useUnicode=true&characterEncoding=utf8&useSSL=false&nullNamePatternMatchesAll=true";
+    private static final String DEFAULT_JDBC_URL = "jdbc:%s://%s:%s/%s?user=%s&password=%s&useUnicode=true&characterEncoding=utf8&useSSL=false&nullNamePatternMatchesAll=true&socketTimeout=5000";
     private static final String TEST_SQL = "SELECT 1";
 
     private String username = "root";
@@ -61,15 +62,21 @@ public class DatabaseWait implements Wait {
         log.info("Connection URL is {}", url);
 
         val properties = new Properties();
-        properties.put("connectTimeout", "2000");
+        properties.put("connectTimeout", "5000");
 
+        val counter = new AtomicInteger();
         await().atMost(atMost.toMillis(), TimeUnit.MILLISECONDS).until(() -> {
+            log.debug("Connection attempt ({}) to {}", counter.incrementAndGet(), database);
             try (val connection = DriverManager.getConnection(url, properties);
                  val statement = connection.prepareStatement(TEST_SQL)) {
 
                 statement.execute();
                 return true;
             } catch(final Exception ignored) {
+                log.debug(" -> Attempt ({}) failed due to {}[{}]",
+                        counter.get(),
+                        ignored.getClass().getSimpleName(),
+                        ignored.getMessage());
                 return false;
             }
         });

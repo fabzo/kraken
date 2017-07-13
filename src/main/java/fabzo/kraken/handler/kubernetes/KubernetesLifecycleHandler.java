@@ -25,6 +25,8 @@ import io.vavr.control.Option;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 
 @Slf4j
@@ -135,7 +137,8 @@ public class KubernetesLifecycleHandler extends AbstractLifecycleHandler {
 
         ctx.registerShutdownHook(() -> stop(component, ctx));
 
-        registerClusterIP(component, ctx);
+        // TODO: Which IP should be registered? Is the ClusterIP the correct one?
+        registerWithContext(component, ctx);
 
         return false;
     }
@@ -193,16 +196,23 @@ public class KubernetesLifecycleHandler extends AbstractLifecycleHandler {
         //@formatter:on
 
         final Service service;
-        if (config.exposeService()) {
-            service = servicePart.withType("LoadBalancer").endSpec().build();
-        } else {
-            service = servicePart.endSpec().build();
+        switch (config.defaultServiceType()) {
+            case NODE_PORT:
+                service = servicePart.withType("NodePort").endSpec().build();
+                break;
+            case LOAD_BALANCER:
+                service = servicePart.withType("LoadBalancer").endSpec().build();
+                break;
+            case DEFAULT:
+            default:
+                service = servicePart.endSpec().build();
+                break;
         }
 
         return service;
     }
 
-    private void registerClusterIP(final DockerComponent component, final EnvironmentContext ctx) {
+    private void registerWithContext(final DockerComponent component, final EnvironmentContext ctx) {
         val services = kubernetes.services()
                 .inNamespace(config.namespace())
                 .withLabel("salt", ctx.salt())
@@ -211,10 +221,56 @@ public class KubernetesLifecycleHandler extends AbstractLifecycleHandler {
                 .list();
 
         if (services.getItems().size() <= 0) {
-            throw new IllegalStateException("Failed to retrieve cluster IP of previously started service " + component.name());
+            throw new IllegalStateException("Failed to retrieve previously started service of " + component.name());
         }
 
-        ctx.setIP(component.name(), services.getItems().get(0).getSpec().getClusterIP());
+        val serviceSpec = services.getItems().get(0).getSpec();
+
+        ctx.setIP(component.name(), serviceSpec.getClusterIP());
+
+        // TODO: Using default service type as there are no kubernetes components right now
+        switch (config.defaultServiceType()) {
+            case NODE_PORT:
+                if (config.masterIPOnNodePort()) {
+                    // Set the master IP for this component (useful with minikube)
+                    ctx.setIP(component.name(), getHost(config.master()));
+                } else {
+                    ctx.setIP(component.name(), serviceSpec.getClusterIP());
+                }
+                // Find corresponding node ports for the components registered ports
+                component.ports().forEach((name, port) -> {
+                    serviceSpec.getPorts().forEach(servicePort -> {
+                        if (servicePort.getPort().equals(port)) {
+                            ctx.addPort(component.name(), name, servicePort.getNodePort(), port);
+                        }
+                    });
+                });
+                break;
+            case LOAD_BALANCER:
+                ctx.setIP(component.name(), serviceSpec.getLoadBalancerIP());
+                component.ports().forEach((name, port) -> {
+                    ctx.addPort(component.name(), name, port, port);
+                });
+                break;
+            case DEFAULT:
+            default:
+                ctx.setIP(component.name(), serviceSpec.getClusterIP());
+                component.ports().forEach((name, port) -> {
+                    ctx.addPort(component.name(), name, port, port);
+                });
+                break;
+        }
+
+    }
+
+    private String getHost(final String master) {
+        try {
+            return new URL(config.master()).getHost();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            log.error("Failed to extract host from {}", master);
+            return null; // TODO: Abort or ignore?
+        }
     }
 
     private java.util.List<EnvVar> createEnvVars(final DockerComponent dockerC, final EnvironmentContext ctx) {
@@ -242,7 +298,6 @@ public class KubernetesLifecycleHandler extends AbstractLifecycleHandler {
 
     private Collection<ServicePort> createServicePorts(final DockerComponent dockerC, final EnvironmentContext ctx) {
         return dockerC.ports().foldRight(List.<ServicePort>empty(), (namePort, list) -> {
-            ctx.addPort(dockerC.name(), namePort._1, namePort._2, namePort._2);
             return list.append(newServicePort(namePort._2));
         }).toJavaList();
     }
