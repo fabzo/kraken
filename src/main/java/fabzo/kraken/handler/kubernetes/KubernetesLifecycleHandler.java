@@ -89,10 +89,10 @@ public class KubernetesLifecycleHandler extends AbstractLifecycleHandler {
         }
 
         if (kubernetes == null) {
-            if (config.master() == null) {
+            if (config.kubernetesConfig() == null) {
                 kubernetes = new DefaultKubernetesClient();
             } else {
-                kubernetes = new DefaultKubernetesClient(config.master());
+                kubernetes = new DefaultKubernetesClient(config.kubernetesConfig().build());
             }
         }
 
@@ -233,7 +233,7 @@ public class KubernetesLifecycleHandler extends AbstractLifecycleHandler {
             case NODE_PORT:
                 if (config.masterIPOnNodePort()) {
                     // Set the master IP for this component (useful with minikube)
-                    ctx.setIP(component.name(), getHost(config.master()));
+                    ctx.setIP(component.name(), getHost(config.kubernetesConfig().getMasterUrl()));
                 } else {
                     ctx.setIP(component.name(), serviceSpec.getClusterIP());
                 }
@@ -265,8 +265,8 @@ public class KubernetesLifecycleHandler extends AbstractLifecycleHandler {
 
     private String getHost(final String master) {
         try {
-            return new URL(config.master()).getHost();
-        } catch (MalformedURLException e) {
+            return new URL(config.kubernetesConfig().getMasterUrl()).getHost();
+        } catch (final MalformedURLException e) {
             e.printStackTrace();
             log.error("Failed to extract host from {}", master);
             return null; // TODO: Abort or ignore?

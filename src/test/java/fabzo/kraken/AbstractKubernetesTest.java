@@ -3,6 +3,7 @@ package fabzo.kraken;
 import fabzo.kraken.handler.kubernetes.KubernetesConfiguration;
 import fabzo.kraken.handler.kubernetes.KubernetesLifecycleHandler;
 import fabzo.kraken.handler.kubernetes.ServiceType;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +47,7 @@ public abstract class AbstractKubernetesTest {
         return KubernetesLifecycleHandler.withConfig(
                 KubernetesConfiguration.create()
                     .withRunDockerComponents(true)
-                    .withMaster("https://" + minikubeIP() + ":8443")
+                    .withKubernetesConfig(new ConfigBuilder().withMasterUrl("https://" + minikubeIP() + ":8443"))
                     .withDefaultServiceType(ServiceType.NODE_PORT)
                     .withMasterIPOnNodePort(true));
     }

@@ -8,6 +8,7 @@ public class DockerComponent extends InfrastructureComponent {
     private String name;
     private String image;
     private String tag;
+    private String command;
     private boolean forcePull = false;
     private boolean followLogs = false;
     private Map<String, Integer> ports = HashMap.empty();
@@ -52,6 +53,11 @@ public class DockerComponent extends InfrastructureComponent {
         return this;
     }
 
+    public DockerComponent withCommand(final String command) {
+        this.command = command;
+        return this;
+    }
+
     public void setId(final String id) {
         this.id = id;
     }
@@ -86,5 +92,9 @@ public class DockerComponent extends InfrastructureComponent {
 
     public boolean isFollowLogs() {
         return followLogs;
+    }
+
+    public String command() {
+        return command;
     }
 }

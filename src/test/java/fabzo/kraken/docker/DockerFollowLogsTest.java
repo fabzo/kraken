@@ -7,15 +7,12 @@ import fabzo.kraken.Kraken;
 import fabzo.kraken.components.DockerComponent;
 import fabzo.kraken.handler.docker.DockerConfiguration;
 import fabzo.kraken.handler.docker.DockerLifecycleHandler;
-import fabzo.kraken.wait.MySQLWait;
 import org.junit.Test;
 
-import java.time.Duration;
-
-public class DockerWaitTest extends AbstractDockerTest {
+public class DockerFollowLogsTest extends AbstractDockerTest {
 
     @Test
-    public void testDatabaseWait() {
+    public void testFollowLogs() {
         final Environment environment = Kraken.createEnvironment(new EnvironmentModule() {
             @Override
             public void configure() {
@@ -25,14 +22,9 @@ public class DockerWaitTest extends AbstractDockerTest {
 
                 register(DockerComponent.create()
                         .withName("mariadb")
-                        .withImage("fabzo/mariadb-docker", "testdb")
-                        .withForcePull()
+                        .withImage("alpine", "latest")
                         .withFollowLogs()
-                        .withPortBinding("db", 3306)
-                        .withEnv("MYSQL_DATABASE", "testdb")
-                        .withEnv("MYSQL_ALLOW_EMPTY_PASSWORD", "yes")
-                        .withCommand("echo 'hello'")
-                        .withWait(new MySQLWait("testdb","db", Duration.ofSeconds(60))));
+                        .withCommand("echo 'hello'"));
 
             }
         });

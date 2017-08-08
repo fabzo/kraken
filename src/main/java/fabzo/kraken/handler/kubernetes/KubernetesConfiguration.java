@@ -1,11 +1,12 @@
 package fabzo.kraken.handler.kubernetes;
 
 import fabzo.kraken.handler.HandlerConfiguration;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 
 public class KubernetesConfiguration implements HandlerConfiguration {
     private boolean runDockerComponents = false;
     private String namespace = "default";
-    private String master;
+    private ConfigBuilder kubernetesConfig;
     private ServiceType defaultServiceType = ServiceType.DEFAULT;
     private boolean masterIPOnNodePort = false;
     private String registryPrefix;
@@ -44,8 +45,8 @@ public class KubernetesConfiguration implements HandlerConfiguration {
         return this;
     }
 
-    public String master() {
-        return master;
+    public ConfigBuilder kubernetesConfig() {
+        return kubernetesConfig;
     }
 
     /**
@@ -53,8 +54,8 @@ public class KubernetesConfiguration implements HandlerConfiguration {
      * <br>
      * Default: localhost
      */
-    public KubernetesConfiguration withMaster(final String master) {
-        this.master = master;
+    public KubernetesConfiguration withKubernetesConfig(final ConfigBuilder kubernetesConfig) {
+        this.kubernetesConfig = kubernetesConfig;
         return this;
     }
 
