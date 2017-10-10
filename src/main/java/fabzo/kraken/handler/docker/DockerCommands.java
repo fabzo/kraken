@@ -6,6 +6,7 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import fabzo.kraken.handler.docker.callbacks.LogContainerResultCallback;
 import fabzo.kraken.handler.docker.callbacks.NoLogPullImageResultCallback;
+import fabzo.kraken.utils.ShutdownHookManager;
 import io.vavr.collection.List;
 import io.vavr.control.Try;
 import lombok.val;
@@ -22,7 +23,7 @@ public class DockerCommands {
         this.dockerSocket = dockerSocket;
         this.dockerClient = newDockerClient(dockerSocket, dockerRegistry);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(this::cleanup));
+        ShutdownHookManager.addHook(1, this::cleanup);
     }
 
     private void cleanup() {

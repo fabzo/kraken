@@ -2,6 +2,7 @@ package fabzo.kraken;
 
 import fabzo.kraken.components.InfrastructureComponent;
 import fabzo.kraken.handler.LifecycleHandler;
+import fabzo.kraken.utils.ShutdownHookManager;
 import fabzo.kraken.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -31,7 +32,7 @@ public class Environment {
     }
 
     private void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> context.shutdownHooks().forEach(Runnable::run)));
+        ShutdownHookManager.addHook(1000, () -> context.shutdownHooks().forEach(Runnable::run));
     }
 
     public void start() {
