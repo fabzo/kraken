@@ -14,7 +14,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'java'
 
 group 'fabzo'
-version '0.3'
+version '0.4'
 
 sourceCompatibility = 1.8
 
@@ -24,7 +24,7 @@ publishing {
             from components.java
             groupId 'fabzo'
             artifactId 'kraken'
-            version '0.3'
+            version '0.4'
         }
     }
 }
@@ -44,7 +44,7 @@ bintray {
         labels = ['docker', 'integration-testing', 'kubernetes']
         publicDownloadNumbers = true
         version {
-            name = '0.3'
+            name = '0.4'
             desc = 'Docker integration testing support for Java'
         }
     }
